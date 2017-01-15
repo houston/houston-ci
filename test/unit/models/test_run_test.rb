@@ -5,7 +5,7 @@ class TestRunTest < ActiveSupport::TestCase
 
 
   test "#retry! should trigger a new build" do
-    project = Project.new(name: "Test", slug: "test", ci_server_name: "Mock")
+    project = Project.new(name: "Test", slug: "test", props: {"adapter.ciServer" => "Mock"})
     tr = TestRun.new(sha: "whatever", result: "pass", project: project)
 
     mock(project.ci_server).build!(tr.sha)
@@ -14,7 +14,7 @@ class TestRunTest < ActiveSupport::TestCase
 
 
   test "#completed! should fetch test results (even if this test run is a retry)" do
-    project = Project.new(name: "Test", slug: "test", ci_server_name: "Mock")
+    project = Project.new(name: "Test", slug: "test", props: {"adapter.ciServer" => "Mock"})
     tr = TestRun.new(sha: "whatever", result: "pass", project: project)
     results_url = "whatever"
 
@@ -45,8 +45,9 @@ class TestRunTest < ActiveSupport::TestCase
       @project = Project.create!(
         name: "Test",
         slug: "test",
-        version_control_name: "Git",
-        props: {"git.location" => path})
+        props: {
+          "adapter.versionControl" => "Git",
+          "git.location" => path})
     end
 
     should "create tests for the project" do
@@ -132,7 +133,7 @@ class TestRunTest < ActiveSupport::TestCase
 
   context "a new test run" do
     setup do
-      @project = create(:project, version_control_name: "Mock")
+      @project = create(:project, props: {"adapter.versionControl" => "Mock"})
       @tr = TestRun.new(project: project)
     end
 
@@ -190,7 +191,7 @@ class TestRunTest < ActiveSupport::TestCase
 
   context "Given a commit history," do
     setup do
-      @project = Project.create!(name: "Test", slug: "test", version_control_name: "Mock")
+      @project = Project.create!(name: "Test", slug: "test", props: {"adapter.versionControl" => "Mock"})
       @commit_a = create(:commit, project: project, sha: "a")
       @commit_b = create(:commit, project: project, sha: "b", parent_sha: "a")
       @commit_c = create(:commit, project: project, sha: "c", parent_sha: "b")

@@ -5,7 +5,7 @@ class TestRunsControllerTest < ActionController::TestCase
 
   setup do
     @routes = Houston::Ci::Engine.routes
-    @project = create(:project, ci_server_name: "Mock")
+    @project = create(:project, props: {"adapter.ciServer" => "Mock"})
     @test_run = @project.test_runs.create!(sha: "whatever")
     @environment = "production"
   end

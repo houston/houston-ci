@@ -10,7 +10,7 @@ class CIIntegrationTest < ActionDispatch::IntegrationTest
 
   context "Houston" do
     should "trigger a build when the hooks:project:post_receive event is fired for a project that uses a CI server" do
-      @project = create(:project, ci_server_name: "Mock")
+      @project = create(:project, props: {"adapter.ciServer" => "Mock"})
 
       stub.instance_of(PostReceivePayload).commit { "63cd1ef" }
 
@@ -21,7 +21,7 @@ class CIIntegrationTest < ActionDispatch::IntegrationTest
     end
 
     should "do nothing when the hooks:project:post_receive event is fired for a project that does not use a CI server" do
-      @project = create(:project, ci_server_name: "None")
+      @project = create(:project, props: {"adapter.ciServer" => "None"})
 
       assert_no_difference "TestRun.count" do
         post "/projects/#{project.slug}/hooks/post_receive"
@@ -31,7 +31,7 @@ class CIIntegrationTest < ActionDispatch::IntegrationTest
 
     should "alert maintainers when a build cannot be triggered" do
       skip "TMI: This is dependent on configured roles!"
-      @project = create(:project, ci_server_name: "Mock")
+      @project = create(:project, props: {"adapter.ciServer" => "Mock"})
       project.team.add_teammate users(:admin)
 
       any_instance_of(Houston::Adapters::CIServer::MockAdapter::Job) do |job|
@@ -56,7 +56,7 @@ class CIIntegrationTest < ActionDispatch::IntegrationTest
     should "fetch results_url when the hooks:post_build event is fired" do
       commit = "whatever"
       results_url = "http://example.com/results"
-      @project = create(:project, ci_server_name: "Mock")
+      @project = create(:project, props: {"adapter.ciServer" => "Mock"})
       @test_run = TestRun.create!(project: project, sha: commit)
 
       any_instance_of(Houston::Adapters::CIServer::MockAdapter::Job) do |job|
@@ -71,7 +71,7 @@ class CIIntegrationTest < ActionDispatch::IntegrationTest
     should "mark the build as \"error\" when a build cannot be processed" do
       commit = "whatever"
       results_url = "http://example.com/results"
-      @project = create(:project, ci_server_name: "Mock")
+      @project = create(:project, props: {"adapter.ciServer" => "Mock"})
       project.team.add_teammate users(:admin)
       @test_run = TestRun.create!(project: project, sha: commit)
 
@@ -88,7 +88,7 @@ class CIIntegrationTest < ActionDispatch::IntegrationTest
 
 
     should "fire test_run:complete when the results of the test run are saved" do
-      @project = create(:project, ci_server_name: "Mock")
+      @project = create(:project, props: {"adapter.ciServer" => "Mock"})
       test_run = TestRun.new(project: project, sha: "whatever")
 
       any_instance_of(Houston::Adapters::CIServer::MockAdapter::Job) do |job|
@@ -120,8 +120,9 @@ class CIIntegrationTest < ActionDispatch::IntegrationTest
         @project = Project.create!(
           name: "Test",
           slug: "fixture",
-          version_control_name: "Git",
-          props: {"git.location" => "git@github.com:houston/fixture.git"})
+          props: {
+            "adapter.versionControl" => "Git",
+            "git.location" => "git@github.com:houston/fixture.git"})
         test_run = TestRun.new(project: project, sha: "bd3e9e2")
 
         expected_url = "https://api.github.com/repos/houston/fixture/statuses/bd3e9e2e4ddf89a640a4f880cbf55bb46cc7e88a?access_token=#{Houston.config.github[:access_token]}"
@@ -141,8 +142,9 @@ class CIIntegrationTest < ActionDispatch::IntegrationTest
         @project = Project.create!(
           name: "Test",
           slug: "fixture",
-          version_control_name: "Git",
-          props: {"git.location" => "git@github.com:houston/fixture.git"})
+          props: {
+            "adapter.versionControl" => "Git",
+            "git.location" => "git@github.com:houston/fixture.git"})
         test_run = TestRun.new(project: project, sha: "bd3e9e2", result: :pass, completed_at: Time.now)
 
         expected_url = "https://api.github.com/repos/houston/fixture/statuses/bd3e9e2e4ddf89a640a4f880cbf55bb46cc7e88a?access_token=#{Houston.config.github[:access_token]}"

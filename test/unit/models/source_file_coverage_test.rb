@@ -5,7 +5,7 @@ class SourceFileCoverageTest < ActiveSupport::TestCase
 
   # https://github.com/colszowka/simplecov/blob/v0.7.1/test/test_source_file.rb
   test "SourceFileCoverage should pass SimpleCov::SourceFile's specs" do
-    project = Project.new(name: "Test", slug: "test", version_control_name: "Mock")
+    project = Project.new(name: "Test", slug: "test", props: {"adapter.versionControl" => "Mock"})
     test_run = TestRun.new(project: project, sha: "bd3e9e2", coverage: [
       { filename: "test.rb", coverage: [nil, 1, 1, 1, nil, nil, 1, 0, nil, nil, nil, nil, nil, nil, nil, nil] }
     ])
