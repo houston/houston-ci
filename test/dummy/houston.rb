@@ -13,6 +13,10 @@ Houston.config do
   mailer_sender "houston@test.com"
 
   # Mount this module on the dummy Houston application.
-  use :ci
+  use :ci do
+    ci_server :jenkins do
+      host "jenkins.example.com"
+    end
+  end
 
 end

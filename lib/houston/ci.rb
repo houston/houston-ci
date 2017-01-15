@@ -22,11 +22,12 @@ module Houston
 
 
   # Register events that will be raised by this module
-  #
-  #    register_events {{
-  #      "ci:create" => params("ci").desc("Ci was created"),
-  #      "ci:update" => params("ci").desc("Ci was updated")
-  #    }}
+
+   register_events {{
+     "test_run:start"    => params("test_run").desc("A test run was started on the CI server"),
+     "test_run:complete" => params("test_run").desc("A test run was completed on the CI server"),
+     "test_run:compared" => params("test_run").desc("The test results for a commit were compared to the results for its parent")
+   }}
 
 
   # Add a link to Houston's global navigation

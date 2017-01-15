@@ -18,10 +18,12 @@ group :test do
   gem "minitest"
   gem "capybara"
   gem "shoulda-context"
+  gem "factory_girl_rails"
+  gem "rr"
 
   gem "minitest-reporters", require: false
   gem "minitest-reporters-turn_reporter", require: false
 end
 
 # Use the development version of houston-core
-# gem "houston-core", github: "houston/houston-core", branch: "master"
+gem "houston-core", github: "houston/houston-core", branch: "master"
