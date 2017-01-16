@@ -1,5 +1,8 @@
 require "houston/ci/engine"
 require "houston/ci/configuration"
+require "houston/adapters/ci_server"
+require "googlecharts"
+require "simplecov"
 
 module Houston
   module Ci

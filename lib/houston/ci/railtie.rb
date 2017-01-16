@@ -1,8 +1,5 @@
 require "houston/ci/commit_ext"
 require "houston/ci/project_ext"
-require "googlecharts"
-require "simplecov"
-require "houston/adapters/ci_server"
 
 module Houston
   module Ci
