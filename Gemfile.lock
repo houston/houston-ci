@@ -1,6 +1,16 @@
 GIT
+  remote: git://github.com/houston/houston-commits.git
+  revision: 243728620b17bf817da7def69765d62aa7fa85cb
+  branch: master
+  specs:
+    houston-commits (0.0.1)
+      houston-core (>= 0.8.0.pre)
+      octokit (~> 4.4.1)
+      rugged (~> 0.24.0)
+
+GIT
   remote: git://github.com/houston/houston-core.git
-  revision: 89ebd701e36938b8ff361afa288e47a3933ce87f
+  revision: c4a5d48b6f82f8a6e297f3a5cca20a12ea5b871a
   branch: master
   specs:
     houston-core (0.8.0.pre)
@@ -8,9 +18,7 @@ GIT
       activerecord-pluck_in_batches (~> 0.2.0)
       addressable (~> 2.3.8)
       attentive (>= 0.3.6)
-      boblail-unfuddle
       browser (~> 2.3.0)
-      bundler
       cancan (~> 1.6.10)
       coffee-rails (~> 4.1.0)
       concurrent-ruby (~> 1.0.2)
@@ -20,7 +28,6 @@ GIT
       faraday-http-cache (~> 1.2.2)
       faraday-raise-errors (~> 0.2.0)
       gemoji (~> 2.1.0)
-      googlecharts (~> 1.6.12)
       handlebars_assets (~> 0.23.0)
       houston-devise_ldap_authenticatable
       houston-vestal_versions
@@ -28,7 +35,6 @@ GIT
       nested_editor_for
       nokogiri
       oauth2
-      octokit (~> 4.4.1)
       oj (~> 2.18)
       openxml-xlsx (>= 0.2.0)
       pg (~> 0.19.0)
@@ -39,9 +45,7 @@ GIT
       rails (~> 5.0.0)
       redcarpet (~> 3.3.2)
       rufus-scheduler (~> 3.2.0)
-      rugged (~> 0.24.0)
       sass-rails (~> 5.0)
-      simplecov (~> 0.9.1)
       strongbox (~> 0.7.2)
       thor
       uglifier (>= 2.7.2)
@@ -104,10 +108,6 @@ GEM
     attentive (0.3.8)
       thread_safe
     bcrypt (3.1.11)
-    boblail-unfuddle (0.7.1)
-      activesupport
-      builder
-      faraday (>= 0.8, < 0.10)
     browser (2.3.0)
     builder (3.2.3)
     cancan (1.6.10)
@@ -213,7 +213,7 @@ GEM
       nokogiri
       openxml-package (>= 0.2.0)
     orm_adapter (0.5.0)
-    ox (2.4.7)
+    ox (2.4.8)
     pg (0.19.0)
     pg_search (1.0.6)
       activerecord (>= 3.1)
@@ -313,6 +313,7 @@ DEPENDENCIES
   capybara
   factory_girl_rails
   houston-ci!
+  houston-commits!
   houston-core!
   minitest
   minitest-reporters

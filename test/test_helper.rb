@@ -9,6 +9,7 @@ require "rails/test_help"
 require "support/houston/adapters/version_control/mock_adapter"
 require "support/houston/adapters/ci_server/mock_adapter"
 require "houston/test_helpers"
+require "houston/commits/test_helpers"
 
 if ENV["CI"] == "true"
   require "minitest/reporters"
@@ -35,6 +36,7 @@ Houston.triggers.async = false
 class ActiveSupport::TestCase
   include FactoryGirl::Syntax::Methods
   include Houston::TestHelpers
+  include Houston::Commits::TestHelpers
 
   # Load fixtures from the engine
   self.fixture_path = File.expand_path("../fixtures", __FILE__)

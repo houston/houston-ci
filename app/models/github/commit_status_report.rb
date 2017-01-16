@@ -18,7 +18,7 @@ module Github
     end
 
     def initialize(test_run)
-      @access_token = Houston.config.github[:access_token]
+      @access_token = Houston::Commits.config.github[:access_token]
       @project = test_run.project
       @test_run = test_run
     end

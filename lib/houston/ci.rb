@@ -8,6 +8,10 @@ module Houston
   module Ci
     extend self
 
+    def dependencies
+      [ :commits ]
+    end
+
     def config(&block)
       @configuration ||= Ci::Configuration.new
       @configuration.instance_eval(&block) if block_given?

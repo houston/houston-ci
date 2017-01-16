@@ -41,13 +41,10 @@ class TestRunTest < ActiveSupport::TestCase
           status: "pass",
           suite: "ChangeTest" }]
 
-      path = Rails.root.join("test", "data", "bare_repo.git").to_s
       @project = Project.create!(
         name: "Test",
         slug: "test",
-        props: {
-          "adapter.versionControl" => "Git",
-          "git.location" => path})
+        props: { "adapter.versionControl" => "Git", "git.location" => bare_repo_path })
     end
 
     should "create tests for the project" do

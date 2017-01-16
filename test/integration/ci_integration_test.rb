@@ -105,8 +105,10 @@ class CIIntegrationTest < ActionDispatch::IntegrationTest
     context "When GitHub integration is configured" do
       setup do
         Houston.config do
-          github do
-            access_token "GITHUB_ACCESS_TOKEN"
+          use :commits do
+            github do
+              access_token "GITHUB_ACCESS_TOKEN"
+            end
           end
         end
       end
@@ -115,7 +117,7 @@ class CIIntegrationTest < ActionDispatch::IntegrationTest
         # don't pull changes for this repo
         git = stub(Houston::Adapters::VersionControl::GitAdapter)
         git.sync! { |*args| }
-        git.get_local_path_to_repo { |_,_| Rails.root.join("test/data/bare_repo.git").to_s }
+        git.get_local_path_to_repo { |_,_| bare_repo_path }
 
         @project = Project.create!(
           name: "Test",
@@ -125,7 +127,7 @@ class CIIntegrationTest < ActionDispatch::IntegrationTest
             "git.location" => "git@github.com:houston/fixture.git"})
         test_run = TestRun.new(project: project, sha: "bd3e9e2")
 
-        expected_url = "https://api.github.com/repos/houston/fixture/statuses/bd3e9e2e4ddf89a640a4f880cbf55bb46cc7e88a?access_token=#{Houston.config.github[:access_token]}"
+        expected_url = "https://api.github.com/repos/houston/fixture/statuses/bd3e9e2e4ddf89a640a4f880cbf55bb46cc7e88a?access_token=#{Houston::Commits.config.github[:access_token]}"
         mock(Faraday).post(expected_url, /"state":"pending"/) do
           stub(Object.new).success? { true }
         end
@@ -137,7 +139,7 @@ class CIIntegrationTest < ActionDispatch::IntegrationTest
         # don't pull changes for this repo
         git = stub(Houston::Adapters::VersionControl::GitAdapter)
         git.sync! { |*args| }
-        git.get_local_path_to_repo { |_,_| Rails.root.join("test/data/bare_repo.git").to_s }
+        git.get_local_path_to_repo { |_,_| bare_repo_path }
 
         @project = Project.create!(
           name: "Test",
@@ -147,7 +149,7 @@ class CIIntegrationTest < ActionDispatch::IntegrationTest
             "git.location" => "git@github.com:houston/fixture.git"})
         test_run = TestRun.new(project: project, sha: "bd3e9e2", result: :pass, completed_at: Time.now)
 
-        expected_url = "https://api.github.com/repos/houston/fixture/statuses/bd3e9e2e4ddf89a640a4f880cbf55bb46cc7e88a?access_token=#{Houston.config.github[:access_token]}"
+        expected_url = "https://api.github.com/repos/houston/fixture/statuses/bd3e9e2e4ddf89a640a4f880cbf55bb46cc7e88a?access_token=#{Houston::Commits.config.github[:access_token]}"
         mock(Faraday).post(expected_url, /"state":"success"/) do
           stub(Object.new).success? { true }
         end
