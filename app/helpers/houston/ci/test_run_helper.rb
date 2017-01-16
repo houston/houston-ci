@@ -79,6 +79,13 @@ module Houston
         StaticChart::Area.new(options)
       end
 
+      def commit_test_message(commit)
+        message = commit.message[/^.*$/]
+        return message unless @project
+        return message unless @project.repo.respond_to? :commit_url
+        link_to message, @project.repo.commit_url(commit), target: "_blank"
+      end
+
     end
   end
 end
