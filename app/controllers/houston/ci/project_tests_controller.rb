@@ -97,7 +97,7 @@ module Houston
 
         if request.xhr?
           if @commits.any?
-            render partial: "project_tests/commits"
+            render partial: "houston/ci/project_tests/commits"
           else
             head 204
           end
