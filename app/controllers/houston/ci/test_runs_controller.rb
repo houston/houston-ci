@@ -1,6 +1,6 @@
 module Houston
   module Ci
-    class TestRunsController < ApplicationController
+    class TestRunsController < Houston::Ci::ApplicationController
       before_action :find_test_run
       skip_before_action :verify_authenticity_token, only: [:save_results]
 

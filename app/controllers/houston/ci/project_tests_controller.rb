@@ -1,6 +1,6 @@
 module Houston
   module Ci
-    class ProjectTestsController < ApplicationController
+    class ProjectTestsController < Houston::Ci::ApplicationController
 
       def index
         @project = Project.find_by_slug! params[:slug]
