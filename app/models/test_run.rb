@@ -169,7 +169,7 @@ class TestRun < ActiveRecord::Base
 
 
   def url
-    "https://#{Houston.config.host}/test_runs/#{sha}"
+    "#{Houston.root_url}/test_runs/#{sha}"
   end
 
 
