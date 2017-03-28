@@ -48,12 +48,12 @@
     text-transform: uppercase;
     font-weight: 500 !important;
 
-    &.project-test-status-untested { color: #ddd; }
-    &.project-test-status-pending { color: #888; }
-    &.project-test-status-aborted { color: #ddd; }
-    &.project-test-status-unknown { color: #888; }
-    &.project-test-status-pass { color: #5db64c; }
-    &.project-test-status-fail { color: #e24e32; }
+    &.project-test-status-untested { color: #ddd !important; }
+    &.project-test-status-pending { color: #888 !important; }
+    &.project-test-status-aborted { color: #ddd !important; }
+    &.project-test-status-unknown { color: #888 !important; }
+    &.project-test-status-pass { color: #5db64c !important; }
+    &.project-test-status-fail { color: #e24e32 !important; }
   }
 }
 
