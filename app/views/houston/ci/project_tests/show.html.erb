@@ -1,6 +1,8 @@
-<h1 class="project-banner <%= @project.color %>" style="margin-bottom: 12px;">
-  <small>Test for</small> <%= @project.name %>
-</h1>
+<% content_for :title do %>
+  <h1 class="project-banner <%= @project.color %>" style="margin-bottom: 12px;">
+    <small>Test for</small> <%= @project.name %>
+  </h1>
+<% end %>
 
 <div class="project-test-history">
   <h3><b><%= @test.suite %></b> <%= @test.name.to_s.gsub(/^(test :|: )/, "") %></h3>

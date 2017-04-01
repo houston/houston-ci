@@ -1,6 +1,8 @@
-<h1 class="project-banner <%= @project.color %>" style="margin-bottom: 12px;">
-  <small>Tests for</small> <%= @project.name %>
-</h1>
+<% content_for :title do %>
+  <h1 class="project-banner <%= @project.color %>" style="margin-bottom: 12px;">
+    <small>Tests for</small> <%= @project.name %>
+  </h1>
+<% end %>
 
 <div class="nomargin">
   <table id="project_tests" class="table table-sortable table-striped project-tests">
