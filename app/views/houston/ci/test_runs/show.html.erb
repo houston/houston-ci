@@ -8,9 +8,9 @@
 <% end %>
 
 
-<h1 class="project-banner <%= @project.color %>" style="margin-bottom: 12px;">
+<% project_banner(@project) do %>
   <small>Test Results for</small> <%= @project.name %>
-</h1>
+<% end %>
 
 <h2 class="test-result-banner <%= @test_run.pending? ? "pending" : @test_run.result %>">
   <%= link_to @test_run.pending? ? "pending" : @test_run.result, @test_run.results_url, target: "_blank" %>
