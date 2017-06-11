@@ -1,12 +1,12 @@
 GIT
   remote: https://github.com/houston/houston-commits.git
-  revision: 243728620b17bf817da7def69765d62aa7fa85cb
+  revision: d21aaad2825430880094095ed5f8d7e94a327b56
   branch: master
   specs:
     houston-commits (0.0.1)
-      houston-core (>= 0.8.0.pre)
-      octokit (~> 4.4.1)
-      rugged (~> 0.24.0)
+      houston-core (>= 0.8.0)
+      octokit (~> 4.6.2)
+      rugged (~> 0.25.0)
 
 PATH
   remote: .

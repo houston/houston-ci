@@ -27,23 +27,17 @@ module Houston
           return
         end
 
-        payload = PostReceivePayload.new(params)
-
-        unless payload.commit
+        unless params[:sha]
           Rails.logger.error "[project.create_a_test_run] no commit found in payload"
           return
         end
 
-        if payload.commit == Houston::NULL_GIT_COMMIT
+        if params[:sha] == Houston::NULL_GIT_COMMIT
           Rails.logger.error "[project.create_a_test_run] branch was deleted; not running tests again"
           return
         end
 
-        test_run = TestRun.new(
-          project: self,
-          sha: payload.commit,
-          agent_email: payload.agent_email,
-          branch: payload.branch)
+        test_run = TestRun.new(params.merge(project: self))
 
         test_run.notify_of_invalid_configuration do
           test_run.start!
