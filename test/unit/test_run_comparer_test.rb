@@ -74,7 +74,7 @@ class TestRunComparerTest < ActiveSupport::TestCase
 
       should "not mark the latter as new" do
         run_comparer!
-        assert_equal nil, tr2.test_results[0].reload.new_test
+        assert_nil tr2.test_results[0].reload.new_test
       end
     end
 

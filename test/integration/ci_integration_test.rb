@@ -1,8 +1,7 @@
 require "test_helper"
 
 # Tests run_tests_on_post_receive.rb
-core = Gem::Specification.find_by_name("houston-core")
-require "#{core.gem_dir}/templates/new-instance/config/events/tests/run_tests_on_post_receive"
+require_relative "../../templates/config/events/tests/run_tests_on_post_receive"
 
 class CIIntegrationTest < ActionDispatch::IntegrationTest
   attr_reader :project
@@ -12,7 +11,7 @@ class CIIntegrationTest < ActionDispatch::IntegrationTest
     should "trigger a build when the hooks:project:post_receive event is fired for a project that uses a CI server" do
       @project = create(:project, props: {"adapter.ciServer" => "Mock"})
 
-      stub.instance_of(PostReceivePayload).commit { "63cd1ef" }
+      stub.instance_of(PostReceivePayload).sha { "63cd1ef" }
 
       assert_difference "TestRun.count", +1 do
         post "/projects/#{project.slug}/hooks/post_receive"
@@ -38,7 +37,7 @@ class CIIntegrationTest < ActionDispatch::IntegrationTest
         stub(job).build! { |commit| raise Houston::Adapters::CIServer::Error }
       end
 
-      stub.instance_of(PostReceivePayload).commit { "63cd1ef" }
+      stub.instance_of(PostReceivePayload).sha { "63cd1ef" }
       stub.instance_of(TestRun).validate! {}
 
       assert_no_difference "TestRun.count" do
