@@ -295,6 +295,7 @@ class TestRun < ActiveRecord::Base
 
 
   def identify_user
+    return if agent_email =~ /<>/
     email = Mail::Address.new(agent_email)
     self.user = User.find_by_email_address(email.address)
   end
