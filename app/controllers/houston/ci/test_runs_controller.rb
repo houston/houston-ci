@@ -1,8 +1,9 @@
 module Houston
   module Ci
     class TestRunsController < Houston::Ci::ApplicationController
-      before_action :find_test_run
-      skip_before_action :verify_authenticity_token, only: [:save_results]
+      before_action :find_test_run, except: [:report_start]
+      before_action :find_or_create_test_run, only: [:report_start]
+      skip_before_action :verify_authenticity_token, only: [:save_results, :report_start]
 
       def show
         @title = "Test Results for #{@test_run.sha[0...8]}"
@@ -39,6 +40,10 @@ module Houston
         end
       end
 
+      def report_start
+        head :ok
+      end
+
       def save_results
         results_url = params[:results_url]
 
@@ -57,6 +62,12 @@ module Houston
 
       def find_test_run
         @test_run = TestRun.find_by_sha!(params[:commit])
+        @project = @test_run.project if @test_run
+      end
+
+      def find_or_create_test_run
+        @test_run = TestRun.find_or_create_by_sha(params[:commit])
+        raise ActiveRecord::RecordNotFound unless @test_run
         @project = @test_run.project if @test_run
       end
 
