@@ -53,6 +53,7 @@ module Houston
               response
             end
           end
+          alias retry! build!
 
           def fetch_results!(build_url)
             build_url = build_url.chomp("/")

@@ -13,6 +13,7 @@ module Houston
 
           def build!(commit)
           end
+          alias retry! build!
 
           def fetch_results!(results_url)
             {}

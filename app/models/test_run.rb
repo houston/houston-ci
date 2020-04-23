@@ -203,7 +203,7 @@ class TestRun < ActiveRecord::Base
 
 
   def retry!
-    trigger_build!
+    trigger_retry!
   end
 
   def start!
@@ -234,6 +234,11 @@ class TestRun < ActiveRecord::Base
 
   def trigger_build!
     project.ci_server.build!(sha)
+    Houston.observer.fire "test_run:start", test_run: self
+  end
+
+  def trigger_retry!
+    project.ci_server.retry!(sha)
     Houston.observer.fire "test_run:start", test_run: self
   end
 
