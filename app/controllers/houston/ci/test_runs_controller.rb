@@ -66,9 +66,10 @@ module Houston
       end
 
       def find_or_create_test_run
-        @test_run = TestRun.find_or_create_by_sha(params[:commit])
-        raise ActiveRecord::RecordNotFound unless @test_run
-        @project = @test_run.project if @test_run
+        @project = Project.find_by_slug!(params[:slug])
+        @test_run = @project.test_runs.find_or_create_by_sha(params[:commit]).tap do |test_run|
+          raise ActiveRecord::RecordNotFound unless test_run
+        end
       end
 
     end
