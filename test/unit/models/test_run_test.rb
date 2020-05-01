@@ -163,6 +163,17 @@ class TestRunTest < ActiveSupport::TestCase
           assert_equal @user, tr.user, "Expected the test run to be associated with the user"
         end
       end
+
+
+      context "and no email address" do
+        setup do
+          tr.agent_email = "\"testbot[bot]\" <>"
+        end
+
+        should "still save the test run" do
+          assert tr.save
+        end
+      end
     end
 
     context "for an invalid commit" do
