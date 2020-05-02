@@ -34,9 +34,9 @@ class TestRun < ActiveRecord::Base
 
     def find_or_create_by_sha(sha)
       find_by_sha(sha) || begin
-        test_run = build(sha: sha)
+        test_run = all.build(sha: sha)
         yield test_run if block_given?
-        test_run.tabp(&:save!)
+        test_run.tap(&:save!)
       end
     rescue Houston::Adapters::VersionControl::CommitNotFound
       nil
