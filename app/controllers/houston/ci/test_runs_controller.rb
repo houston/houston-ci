@@ -3,7 +3,7 @@ module Houston
     class TestRunsController < Houston::Ci::ApplicationController
       before_action :find_test_run, except: [:report_start]
       before_action :find_or_create_test_run, only: [:report_start]
-      skip_before_action :verify_authenticity_token, only: [:save_results, :report_start]
+      skip_before_action :verify_authenticity_token, only: [:save_results, :save_results_async, :report_start]
 
       def show
         @title = "Test Results for #{@test_run.sha[0...8]}"
@@ -52,6 +52,15 @@ module Houston
         head :ok
       end
 
+      def save_results_async
+        with_results_url do |results_url|
+          Rails.logger.debug "Scheduling pulling from #{results_url} in #{ASYNC_DELAY}s"
+          DelayedTestRunRecorder.set(wait: ASYNC_DELAY.seconds).perform_later(params[:commit], results_url)
+        end
+
+        head :ok
+      end
+
     private
 
       def find_test_run
@@ -78,6 +87,19 @@ module Houston
 
         yield results_url
       end
+
+      class DelayedTestRunRecorder < ActiveJob::Base
+        self.queue_adapter = :async
+
+        def perform(sha, results_url)
+          test_run = TestRun.find_by_sha!(sha)
+          Rails.logger.debug "Updating TestRun #{test_run.id} with #{results_url}"
+          test_run.completed!(results_url)
+        end
+
+      end
+
+      ASYNC_DELAY = 10
 
     end
   end
