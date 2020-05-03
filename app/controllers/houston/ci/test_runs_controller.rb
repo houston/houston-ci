@@ -45,16 +45,10 @@ module Houston
       end
 
       def save_results
-        results_url = params[:results_url]
-
-        if results_url.blank?
-          message = "#{@project.ci_server_name} is not appropriately configured to build #{@project.name}."
-          additional_info = "#{@project.ci_server_name} did not supply 'results_url' when it triggered the post_build hook"
-          Houston::Ci::Mailer.ci_configuration_error(@test_run, message, additional_info: additional_info).deliver!
-          return
+        with_results_url do |results_url|
+          @test_run.completed!(results_url)
         end
 
-        @test_run.completed!(results_url)
         head :ok
       end
 
@@ -70,6 +64,19 @@ module Houston
         @test_run = @project.test_runs.find_or_create_by_sha(params[:commit]).tap do |test_run|
           raise ActiveRecord::RecordNotFound unless test_run
         end
+      end
+
+      def with_results_url
+        results_url = params[:results_url]
+
+        if results_url.blank?
+          message = "#{@project.ci_server_name} is not appropriately configured to build #{@project.name}."
+          additional_info = "#{@project.ci_server_name} did not supply 'results_url' when it triggered the post_build hook"
+          Houston::Ci::Mailer.ci_configuration_error(@test_run, message, additional_info: additional_info).deliver!
+          return
+        end
+
+        yield results_url
       end
 
     end
