@@ -13,6 +13,7 @@ module Houston
           def initialize(project, workflow_file_name)
             @project = project
             @workflow_file_name = workflow_file_name
+            @coverage_reports = []
           end
 
           attr_reader :project
@@ -41,8 +42,9 @@ module Houston
               skip_count: 0,
               tests: [] }.tap do |results|
               artifacts_for(run_id).each do |artifact|
-                # TODO: parse coverage.json
+                parse_coverage(artifact[:data]) if artifact[:name] =~ COVERAGE_REGEX
                 next unless artifact[:name] =~ XML_FILE_REGEX
+
                 Juniter.parse(artifact[:data]).tap do |test_file|
                   test_file.test_suites.test_suites.each do |suite|
                     results[:total_count] += suite.test_count.to_i
@@ -54,13 +56,15 @@ module Houston
                 end
               end
 
+              results[:coverage] = coverage_reports.flat_map { |report| report[:coverage] || [] }
+              results.merge! compile_coverage_metrics!
               results[:duration] = fetch_duration_of! run_id
               results[:result] = results[:tests].pluck(:status).none? { |status| %i{fail error}.include?(status) } ? :pass : :fail
             end
           end
 
         private
-          attr_reader :workflow_file_name
+          attr_reader :workflow_file_name, :coverage_reports
 
           def latest_run_for(commit)
             Houston.github.get("/repos/#{repo_path}/actions/workflows/#{workflow[:id]}/runs")[:workflow_runs]
@@ -142,7 +146,45 @@ module Houston
             seconds * 1000
           end
 
+          def parse_coverage(serialized)
+            json = MultiJson.parse(serialized)
+            coverage_reports << {
+              metrics: json["metrics"] || {},
+              files: translate_file_coverage(json["files"])
+            }
+          end
+
+          def compile_coverage_metrics!
+            # TODO: Averaging isn't the right solution, since some slices may include more
+            # files or lines than others. Coverage.json supplies total lines and covered lines,
+            # so calculating our own master percentage shouldn't be an issue, but I'm not sure
+            # how strength is calculated, so I'm not sure how to derive that over the span of
+            # several files...
+            all_metrics = coverage_reports.map { |report| report[:metrics] }
+            percentages = all_metrics.map { |metrics| metrics["covered_percent"] }.compact
+            strengths = all_metrics.map { |metrics| metrics["covered_strength"] }.compact
+            covered_percent = percentages.empty? ? 0 : percentages.sum / (100.0 * percentages.count)
+            covered_strength = strengths.empty? ? 0 : strengths.sum / (100.0 * strengths.count)
+
+            { covered_percent: covered_percent, covered_strength: covered_strength }
+          end
+
+          def translate_file_coverage(files)
+            Array.wrap(files).map do |file|
+              { filename: get_relative_filename(file["filename"]),
+                coverage: file["coverage"] }
+            end
+          end
+
+          def get_relative_filename(filename)
+            return filename unless (relative_filename = filename[WORKSPACE_MATCHER])
+
+            relative_filename.split("/")[2..-1].join("/")
+          end
+
+          COVERAGE_REGEX = /coverage\.json$/i.freeze
           XML_FILE_REGEX = /\.xml$/i.freeze
+          WORKSPACE_MATCHER = /(?<=\/runner\/work\/).*/.freeze
 
         end
       end
