@@ -1,8 +1,9 @@
 module Houston
   module Ci
     class TestRunsController < Houston::Ci::ApplicationController
-      before_action :find_test_run
-      skip_before_action :verify_authenticity_token, only: [:save_results]
+      before_action :find_test_run, except: [:report_start]
+      before_action :find_or_create_test_run, only: [:report_start]
+      skip_before_action :verify_authenticity_token, only: [:save_results, :save_results_async, :report_start]
 
       def show
         @title = "Test Results for #{@test_run.sha[0...8]}"
@@ -39,17 +40,24 @@ module Houston
         end
       end
 
-      def save_results
-        results_url = params[:results_url]
+      def report_start
+        head :ok
+      end
 
-        if results_url.blank?
-          message = "#{@project.ci_server_name} is not appropriately configured to build #{@project.name}."
-          additional_info = "#{@project.ci_server_name} did not supply 'results_url' when it triggered the post_build hook"
-          Houston::Ci::Mailer.ci_configuration_error(@test_run, message, additional_info: additional_info).deliver!
-          return
+      def save_results
+        with_results_url do |results_url|
+          @test_run.completed!(results_url)
         end
 
-        @test_run.completed!(results_url)
+        head :ok
+      end
+
+      def save_results_async
+        with_results_url do |results_url|
+          Rails.logger.debug "Scheduling pulling from #{results_url} in #{ASYNC_DELAY}s"
+          DelayedTestRunRecorder.set(wait: ASYNC_DELAY.seconds).perform_later(params[:commit], results_url)
+        end
+
         head :ok
       end
 
@@ -59,6 +67,39 @@ module Houston
         @test_run = TestRun.find_by_sha!(params[:commit])
         @project = @test_run.project if @test_run
       end
+
+      def find_or_create_test_run
+        @project = Project.find_by_slug!(params[:slug])
+        @test_run = @project.test_runs.find_or_create_by_sha(params[:commit]).tap do |test_run|
+          raise ActiveRecord::RecordNotFound unless test_run
+        end
+      end
+
+      def with_results_url
+        results_url = params[:results_url]
+
+        if results_url.blank?
+          message = "#{@project.ci_server_name} is not appropriately configured to build #{@project.name}."
+          additional_info = "#{@project.ci_server_name} did not supply 'results_url' when it triggered the post_build hook"
+          Houston::Ci::Mailer.ci_configuration_error(@test_run, message, additional_info: additional_info).deliver!
+          return
+        end
+
+        yield results_url
+      end
+
+      class DelayedTestRunRecorder < ActiveJob::Base
+        self.queue_adapter = :async
+
+        def perform(sha, results_url)
+          test_run = TestRun.find_by_sha!(sha)
+          Rails.logger.debug "Updating TestRun #{test_run.id} with #{results_url}"
+          test_run.completed!(results_url)
+        end
+
+      end
+
+      ASYNC_DELAY = 10
 
     end
   end

@@ -34,9 +34,9 @@ class TestRun < ActiveRecord::Base
 
     def find_or_create_by_sha(sha)
       find_by_sha(sha) || begin
-        test_run = build(sha: sha)
+        test_run = all.build(sha: sha)
         yield test_run if block_given?
-        test_run.tabp(&:save!)
+        test_run.tap(&:save!)
       end
     rescue Houston::Adapters::VersionControl::CommitNotFound
       nil
@@ -203,7 +203,7 @@ class TestRun < ActiveRecord::Base
 
 
   def retry!
-    trigger_build!
+    trigger_retry!
   end
 
   def start!
@@ -234,6 +234,11 @@ class TestRun < ActiveRecord::Base
 
   def trigger_build!
     project.ci_server.build!(sha)
+    Houston.observer.fire "test_run:start", test_run: self
+  end
+
+  def trigger_retry!
+    project.ci_server.retry!(sha)
     Houston.observer.fire "test_run:start", test_run: self
   end
 
