@@ -2,7 +2,7 @@ class TestRun < ActiveRecord::Base
   include BelongsToCommit
 
   belongs_to :project
-  belongs_to :user
+  belongs_to :user, optional: true
   has_many :test_results do
     def [](suite, name=nil)
       return super(suite) unless name
